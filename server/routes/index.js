@@ -16,11 +16,13 @@ module.exports = (app, nuxt, connection) => {
     const end_time = parseInt(name) + 60 * 60 * 24 * 3
     const type = path.extname(file.originalname)
     const transformFilename = name + type
-    const file_path = '../uploads'
+    const file_path = '../../uploads'
     try {
       const message = await writeFile(file.buffer, transformFilename, file_path)
       const create_file = await fileRepository.create({ name, type, end_time })
       const save_file = await fileRepository.save(create_file)
+      save_file.name=Buffer.from(save_file.name).toString('base64')
+      save_file.url=process.env.BASEURL +'preview/'+ save_file.name
       res.json({ message, data: save_file })
     } catch (error) {
       res.status(400).json({ message: error })
@@ -28,14 +30,16 @@ module.exports = (app, nuxt, connection) => {
   })
 
   app.get('/preview/:id', async (req, res) => {
-    const file = await fileRepository.findOne({ where: { name: req.params.id } })
+    const name=Buffer.from(req.params.id,'base64').toString()
+    const file = await fileRepository.findOne({ where: { name } })
     if (!file) {
-      return res.status(404).send('文件不存在')
+      res.data = { code: 400, message: '文件不存在' }
     } else if (parseInt(file.name) + 60 * 60 * 24 * 3 > parseInt(file.end_time)) {
-      return res.status(404).send('文件不存在')
+      res.data = { code: 400, message: '文件不存在' }
+    } else {
+      file.file = process.env.BASEURL + file.name + file.type
+      res.data = { code: 200, data: file }
     }
-    file.file = process.env.BASEURL + file.name + file.type
-    res.data = file
     handleRequest(req, res, nuxt)
   })
 }
