@@ -1,0 +1,29 @@
+{
+  "name": "file-preview",
+  "version": "1.0.0",
+  "description": "My funkadelic Nuxt.js project",
+  "author": "XHalso",
+  "private": true,
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development nodemon server/index.js --watch server",
+    "build": "nuxt build",
+    "start": "cross-env NODE_ENV=production node server/index.js",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "cross-env": "^5.2.0",
+    "dayjs": "^1.8.14",
+    "dotenv": "^8.0.0",
+    "element-ui": "^2.4.11",
+    "express": "^4.16.4",
+    "multer": "^1.4.1",
+    "mysql": "^2.17.1",
+    "nuxt": "^2.4.0",
+    "pdfjs-dist": "^2.0.943",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "^0.2.17"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.9"
+  }
+}
