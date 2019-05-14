@@ -1,9 +1,16 @@
 const dayjs = require('dayjs')
 const fs = require('fs')
 const path = require('path')
+const log4js = require('log4js');
 
+/**
+ * 请求处理
+ * @param req 
+ * @param res 
+ * @param nuxt 
+ */
 const handleRequest = (req, res, nuxt) => {
-  nuxt.renderRoute(req.url, {req, res}).then(result => {
+  nuxt.renderRoute(req.url, { req, res }).then(result => {
     return res.send(result.html)
   }).catch(e => {
     return res.send(e)
@@ -54,9 +61,33 @@ const writeFile = (fileBuffer, transformFilename, relative_path) => {
   })
 }
 
+/**
+ * 删除过期文件
+ * @param resolve_path 
+ */
+const deleteFile = resolve_path => {
+  if (fs.existsSync(resolve_path)) {
+    const logger = log4js.getLogger('delete');
+    const files = fs.readdirSync(resolve_path)
+    files.forEach(item => {
+      const effective_time = parseInt(path.basename(item, path.extname(item))) + parseInt(process.env.EXPIREDATE)
+      const now_time = dayjs().format('YYYYMMDDHHmmssSSS')
+      if (effective_time < now_time) {
+        try {
+          fs.unlinkSync(path.join(resolve_path, item));
+          logger.info(item)
+        } catch (error) {
+          logger.error(error)
+        }
+      }
+    })
+  }
+}
+
 module.exports = {
   handleRequest,
   transformTime,
   checkDirExist,
-  writeFile
+  writeFile,
+  deleteFile
 }

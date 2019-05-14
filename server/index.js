@@ -5,8 +5,16 @@ require('dotenv').config()
 const typeorm = require("typeorm");
 const EntitySchema = typeorm.EntitySchema;
 const path = require('path')
+const schedule = require('node-schedule');
+const log4js = require('log4js');
+
+log4js.configure({
+  appenders: { file: { type: 'file', filename: 'file.log' } },
+  categories: { default: { appenders: ['file'], level: 'all' } }
+})
 
 const routes = require('./routes')
+const { deleteFile } = require('./utils')
 
 const app = express()
 
@@ -44,7 +52,18 @@ typeorm
         await nuxt.ready()
       }
 
-      app.use(express.static(path.join(__dirname, '../uploads')));
+      const resolve_path = path.join(__dirname, '../uploads')
+
+      // static file
+      app.use(express.static(resolve_path));
+
+      // node schedule
+      function scheduleCronstyle() {
+        schedule.scheduleJob('0-10 * * * * *', function () {
+          deleteFile(resolve_path)
+        });
+      }
+      scheduleCronstyle();
 
       routes(app, nuxt, connection)
 

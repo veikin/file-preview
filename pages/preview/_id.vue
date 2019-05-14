@@ -17,17 +17,22 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
-  async asyncData ({ req, res }) {
-    if (process.server) {
-      const code=res.data.code
-      if (code==400) {
-        return {isEmpty:true}
-      }else{
-        const type=res.data.data.type
-        const file=res.data.data.file
-        return {isEmpty:false,type,file}
+  async asyncData ({ params }) {
+    let { data } = await axios.get(`/preview`,{
+      params:{
+        id:params.id
       }
+    })
+    const code=data.code
+    if (code==400) {
+      return {isEmpty:true}
+    }else{
+      const type=data.data.type
+      const file=data.data.file
+      return {isEmpty:false,type,file}
     }
   }
 }

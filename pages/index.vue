@@ -6,11 +6,12 @@
         drag
         action="/upload"
         :limit="1"
+        :before-upload="handleBefore"
         :on-success="handleSuccess"
         :on-error="handleError">
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-        <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+        <div class="el-upload__tip" slot="tip">只能上传word、execl、ppt、pdf文件</div>
       </el-upload>
       <div class="btn" v-if="name">
         <nuxt-link :to="'/preview/'+name" target="_blank">
@@ -30,15 +31,14 @@
 import Clipboard from 'clipboard';
 
 export default {
-  async asyncData ({ req, res }) {
-    if (process.server) {
-      // console.log(res)
-    }
-  },
   data(){
     return{
       name:'',
-      url: ''
+      url: '',
+      word_type:['.doc','.docx','.docm','.dotx','.dotm'],
+      excel_type:['.csv','.xls','.xlsx','.xlsm','.xltx','.xltm','.xlsb','.xlam'],
+      ppt_type:['.ppt','.pptx','.pptm','.ppsx','.ppsm','.potx','.potm','.ppam'],
+      pdf_type:['.pdf']
     }
   },
   mounted() {
@@ -56,6 +56,16 @@ export default {
     handleError(err, file, fileList){
       this.$message.error(JSON.parse(err.message).message)
     },
+    handleBefore(file){
+      const extname=file.name.substring(file.name.lastIndexOf('.'))
+      const file_type=[...this.word_type,...this.excel_type,...this.ppt_type,...this.pdf_type]
+      if (file_type.indexOf(extname)!=-1) {
+        return true
+      }else{
+        this.$message.error('不支持该文件格式')
+        return false
+      }
+    }
   }
 }
 </script>
