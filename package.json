@@ -23,7 +23,6 @@
     "mysql": "^2.17.1",
     "node-schedule": "^1.3.2",
     "nuxt": "^2.4.0",
-    "pdfjs-dist": "^2.0.943",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.2.17"
   },
