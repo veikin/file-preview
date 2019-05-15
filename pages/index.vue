@@ -8,10 +8,21 @@
         :limit="1"
         :before-upload="handleBefore"
         :on-success="handleSuccess"
-        :on-error="handleError">
+        :on-error="handleError"
+        :on-remove="handleRemove"
+        :on-exceed="handleExceed">
         <i class="el-icon-upload"></i>
-        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-        <div class="el-upload__tip" slot="tip">只能上传word、execl、ppt、pdf文件</div>
+        <div class="el-upload__text">将单个文件拖到此处，或<em>点击上传</em>单个文件</div>
+        <div class="el-upload__tip" slot="tip">
+          <p>支持的文件及文件格式：</p>
+          <ul>
+            <li>word：docx dotx</li>
+            <li>excel：xlsx、xlsb、xls、xlsm</li>
+            <li>ppt：pptx、 ppsx、 ppt、 pps、 potx、 ppsm</li>
+            <li>pdf：pdf</li>
+          </ul>
+          <p>word 、ppt 和 pdf 文件大小不能超过 10M; excel 文件大小不能超过 5M</p>
+        </div>
       </el-upload>
       <div class="btn" v-if="name">
         <nuxt-link :to="'/preview/'+name" target="_blank">
@@ -35,9 +46,9 @@ export default {
     return{
       name:'',
       url: '',
-      word_type:['.doc','.docx','.docm','.dotx','.dotm'],
-      excel_type:['.csv','.xls','.xlsx','.xlsm','.xltx','.xltm','.xlsb','.xlam'],
-      ppt_type:['.ppt','.pptx','.pptm','.ppsx','.ppsm','.potx','.potm','.ppam'],
+      word_type:['.docx','.dotx'],
+      excel_type:['.xlsx','.xlsb','.xls','.xlsm'],
+      ppt_type:['.pptx','.ppsx','.ppt','.pps','.potx','.ppsm'],
       pdf_type:['.pdf']
     }
   },
@@ -57,14 +68,32 @@ export default {
       this.$message.error(JSON.parse(err.message).message)
     },
     handleBefore(file){
+      const isLt10M = file.size / 1024 / 1024 < 10;
+      const isLt5M = file.size / 1024 / 1024 < 5;
       const extname=file.name.substring(file.name.lastIndexOf('.'))
       const file_type=[...this.word_type,...this.excel_type,...this.ppt_type,...this.pdf_type]
-      if (file_type.indexOf(extname)!=-1) {
-        return true
-      }else{
+      const isType=file_type.indexOf(extname) != -1
+      if (!isLt10M && !isType) {
+        this.$message.error('不支持该文件格式,并且上传文件大小不能超过 10MB');
+        return false
+      }else if(this.excel_type.indexOf(extname)!= -1 && !isLt5M){
+        this.$message.error('execl文件大小不能超过 5MB');
+        return false
+      }else if (!isLt10M) {
+        this.$message.error('上传文件大小不能超过 10MB');
+        return false
+      }else if (!isType) {
         this.$message.error('不支持该文件格式')
         return false
       }
+      return true
+    },
+    handleRemove(file, fileList){
+      this.name=''
+      this.url=''
+    },
+    handleExceed(files, fileList){
+      this.$message.error('只支持单文件上传')
     }
   }
 }
@@ -77,13 +106,13 @@ export default {
 }
 .content{
   position: absolute;
-  height: 290px;
+  height: 375px;
   top: 50%;
   left: 50%;
   transform: translate(-50%,-50%)
 }
 .upload{
-  height: 250px;
+  height: 335px;
 }
 .btn{
   position: relative;
@@ -92,7 +121,5 @@ export default {
 }
 .preview{
   margin-right: 10px;
-}
-.copy{
 }
 </style>

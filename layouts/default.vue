@@ -36,4 +36,8 @@ html {
   box-sizing: border-box;
   margin: 0;
 }
+
+.el-upload-dragger{
+  width: 400px !important;
+}
 </style>

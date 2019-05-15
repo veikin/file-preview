@@ -21,6 +21,26 @@ module.exports = (app, nuxt, connection) => {
   app.post('/upload', upload.single('file'), async (req, res) => {
     const logger = log4js.getLogger('upload');
     const file = req.file
+    
+    const word_type = ['.docx', '.dotx']
+    const excel_type = ['.xlsx', '.xlsb', '.xls', '.xlsm']
+    const ppt_type = ['.pptx', '.ppsx', '.ppt', '.pps', '.potx', '.ppsm']
+    const pdf_type = ['.pdf']
+    const isLt10M = file.size / 1024 / 1024 < 10;
+    const isLt5M = file.size / 1024 / 1024 < 5;
+    const extname = path.extname(file.originalname)
+    const file_type = [...word_type, ...excel_type, ...ppt_type, ...pdf_type]
+    const isType = file_type.indexOf(extname) != -1
+    if (!isLt10M && !isType) {
+      res.status(400).json({ message: '不支持该文件格式,并且上传文件大小不能超过 10MB' })
+    } else if (excel_type.indexOf(extname) != -1 && !isLt5M) {
+      res.status(400).json({ message: 'execl文件大小不能超过 5MB' })
+    } else if (!isLt10M) {
+      res.status(400).json({ message: '上传文件大小不能超过 10MB' })
+    } else if (!isType) {
+      res.status(400).json({ message: '不支持该文件格式' })
+    }
+
     const name = transformTime()
     const end_time = parseInt(name) + parseInt(process.env.EXPIREDATE)
     const type = path.extname(file.originalname)
@@ -31,7 +51,7 @@ module.exports = (app, nuxt, connection) => {
       const create_file = await fileRepository.create({ name, type, end_time })
       const save_file = await fileRepository.save(create_file)
 
-      logger.info(save_file.name+save_file.type, req.ip)
+      logger.info(save_file.name + save_file.type, req.ip)
 
       save_file.name = Buffer.from(save_file.name).toString('base64')
       save_file.url = process.env.BASEURL + 'preview/' + save_file.name

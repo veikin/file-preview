@@ -14,7 +14,7 @@ log4js.configure({
 })
 
 const routes = require('./routes')
-const { deleteFile } = require('./utils')
+const { deleteFile, checkDirExist } = require('./utils')
 
 const app = express()
 
@@ -51,9 +51,8 @@ typeorm
       } else {
         await nuxt.ready()
       }
-
       const resolve_path = path.join(__dirname, '../uploads')
-
+      checkDirExist(resolve_path)
       // static file
       app.use(express.static(resolve_path));
 

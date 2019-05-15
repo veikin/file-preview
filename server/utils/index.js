@@ -32,7 +32,7 @@ const checkDirExist = (folderpath) => {
   if (fs.existsSync(folderpath)) {
     return true;
   } else {
-    if (CheckDirExist(path.dirname(folderpath))) {
+    if (checkDirExist(path.dirname(folderpath))) {
       fs.mkdirSync(folderpath);
       return true;
     }
