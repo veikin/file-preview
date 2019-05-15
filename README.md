@@ -3,11 +3,11 @@
 > word、excel、ppt 和 pdf 文件在线预览。[查看](https://view.ivanweb.cn/)
 
 ## 使用的技术
-* nuxtjs
+* Nuxt.js
 * express
 * element-ui
 * typeorm
-* [pdfjs](https://mozilla.github.io/pdf.js/)
+* [pdf.js](https://mozilla.github.io/pdf.js/)
 * word、excel、ppt在线预览[微软接口文档](https://www.microsoft.com/en-us/microsoft-365/blog/2013/04/10/office-web-viewer-view-office-documents-in-a-browser/?eu=true)
 * node-schedule
 
